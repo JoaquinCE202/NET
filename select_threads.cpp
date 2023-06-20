@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>a
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -14,6 +14,7 @@
 #include <queue>
 #include <mutex>
 #include <iostream>
+#include <mutex>  
 #include <sstream>
 
 using namespace std;
@@ -26,6 +27,7 @@ fd_set read_fds;  // temp file descriptor list for select()
 
 const int buff_tam =66000;
 
+ map<int, mutex> locks; 
  map<int,  queue<char *>> map_information;
  map<int,  string> response; 
  map<int,int> IDS;
@@ -53,15 +55,10 @@ void read_info(int socket_id){
     int sizeNoData=9+7+10+3;
     int totalSize;
     string line_backup; 
-  
+    locks[socket_id].unlock();
+			
     while(true){
-      
-        if(map_information[socket_id].empty())
-        {
-        	continue;
-        }
-        
-      
+  
         while (!map_information[socket_id].empty()) {
             //copia
             char *buffer3 = strdup(map_information[socket_id].front());
@@ -128,6 +125,8 @@ void read_info(int socket_id){
                 }
             }
         }
+        //bloqueamos el mutex del socket correspondiente
+        locks[socket_id].lock();
     }
 }
 
@@ -231,6 +230,8 @@ int main(){
                         //inicializamos su response que es el string donde acumularemos todo
                         response[newfd]=""; 
                         
+                        locks[newfd].unlock();
+                        
                         //lanzamos su thread
                         thrds.push_back( thread(read_info,newfd));
                     }
@@ -245,6 +246,9 @@ int main(){
                     if(n!=0)
                     {
                         buffer[n] = '\0';
+                        
+                        //desbloqueamos el mutex del socket correspondiente
+                        locks[i].unlock();
 			
 			//almacenamos la info en el apartado del socket i del map_information
                         map_information[i].push(strdup(buffer));
