@@ -9,7 +9,7 @@
     $ cat data.0.txt|nc 127.0.0.1 9034 & cat data.1.txt|nc 127.0.0.1 9034 & cat data.2.txt|nc 127.0.0.1 9034 & cat data.3.txt|nc 127.0.0.1 9034 & cat data.4.txt|nc 127.0.0.1 9034 & cat data.5.txt|nc 127.0.0.1 9034 & cat data.6.txt|nc 127.0.0.1 9034 & cat data.7.txt|nc 127.0.0.1 9034 & cat data.8.txt|nc 127.0.0.1 9034 & cat data.9.txt|nc 127.0.0.1 9034
     ```
 
-- **Select_threads:** Server using select but also with threads to manage the information incoming from de data files to write it into new files (file.txt) 
+- **Select_threads:** Server using select but also with threads to manage the information incoming from de data files to write it into new files (file.txt). On the other hand, mutex has been included to implement locks for every one of the threads.
 
   - **For a simple connection:**
     ```bash
